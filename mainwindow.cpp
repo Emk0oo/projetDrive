@@ -4,6 +4,7 @@
 #include <QDebug>
 using namespace std;
 //#define PORT "/dev/ttyUSB0"
+//#define PORT "/dev/ttyUSB1"
 #include "clientudp.h"
 
 
