@@ -3,8 +3,8 @@
 #include <iostream>
 #include <QDebug>
 using namespace std;
-//#define PORT "/dev/ttyUSB1"
-
+//#define PORT "/dev/ttyUSB0"
+#include "clientudp.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -12,12 +12,13 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->information->setText("allo");
     ui->pushButtonDeconnexion->setDisabled(true);
     //ui->envoyer->setDisabled(true);
     //ui->textEdit->setDisabled(true);
 
     //connect(serie, SIGNAL(timeout()), this, SLOT(on_envoyer_clicked()));
+    ClientUdp recepteur;
+    recepteur.processPendingDatagrams();
 }
 
 MainWindow::~MainWindow()
@@ -28,8 +29,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButtonConnexion_clicked()
 {
-    const QString PORT= "/dev/ttyUSB1"; //chemin vers le port série !!!!! remettre ces 2 lignes dans la connexion
-    serie= new QSerialPort(PORT); // !!!!! remettre ces 2 lignes dans la connexion
+    const QString PORT= "/dev/ttyUSB0"; //chemin vers le port série !!!!!
+    serie= new QSerialPort(PORT);
 
     //configuration de la liaison
 
@@ -46,14 +47,19 @@ void MainWindow::on_pushButtonConnexion_clicked()
 
     if (serie->isOpen()==true)
     {
+        ui->information->setTextColor(Qt::green);
         ui->information->setText("Port ouvert");
+
         ui->pushButtonConnexion->setDisabled(true);
         ui->pushButtonDeconnexion->setEnabled(true);
         ui->envoyer->setEnabled(true);
         ui->textEdit->setEnabled(true);
     }
-    else ui->information->setText("Port non ouvert");
+    else {
+        ui->information->setTextColor(Qt::red);
+        ui->information->setText("Port non ouvert");
 
+    }
 
 }
 
@@ -66,7 +72,7 @@ void MainWindow::on_pushButtonDeconnexion_clicked()
         ui->information->setText("La deconnexion a echoue");
     }
     else {
-        ui->information->setText("la deconnexion a reussie");
+        ui->information->setText("La deconnexion a reussie");
         ui->pushButtonConnexion->setEnabled(true);
         ui->pushButtonDeconnexion->setDisabled(true);
         ui->envoyer->setDisabled(true);
@@ -95,67 +101,43 @@ void MainWindow::on_envoyer_clicked()
         trame.append(0x41); //'A';
 
         trame.append(ui->textEdit->toPlainText()); //on récupère les char du textEdit
+
         trame.append(0x04);
         QString trameqs = QString::fromStdString(trame.toStdString());
         qDebug() << trameqs;
         serie->write(trame);
 
-        //string msg1= msg.toStdString();
 
 
-        /*const char* c= msg.toStdString().c_str(); //on convertit le qstring en char
-        //qDebug()<< c;
-        i++;
-        strcpy(&test[i], c);
+        QByteArray trame2;
 
-        i=i+strlen(c);
+        int a;
+        for (a=0;a<5;a++){
+            trame2[a]=0x00;
+        }
 
-        test[i++]=0x04;
+        trame2.append(0x01);
+        trame2.append(0x7A); //'z';
+        trame2.append(0x30); //'0';
+        trame2.append(0x30); //'0';
+        trame2.append(0x02); //2
+        trame2.append(0x41); //'A';
+        trame2.append(0x42); //'A';
 
-        qDebug()<<test[i];
+        trame2.append(""); //on récupère les char du textEdit
+        trame2.append(0x04);
 
-        QByteArray data=QByteArray(test,i); //conversion de char test en QBytteArray
-        qDebug() << data;
-        serie->write(data);*/
+        serie->write(trame2);
 
-
-
-    /*char test[250];
-
-    //on crée la trame avec les caractères nécessaires
-
-    int i;
-    for (i=0;i<5;i++){
-        test[i]=0x00;
-    }
-
-    test[i++]=0x01;
-    test[i++]=0x7A; //'z';
-    test[i++]=0x30; //'0';
-    test[i++]=0x30; //'0';
-    test[i++]=0x02; //2
-    test[i++]=0x41; //'A';
-    test[i++]=0x41; //'A';
-
-    QString msg=ui->textEdit->toPlainText(); //on récupère les char du textEdit
-
-    //string msg1= msg.toStdString();
-
-
-    const char* c= msg.toStdString().c_str(); //on convertit le qstring en char
-    //qDebug()<< c;
-    i++;
-    strcpy(&test[i], c);
-
-    i=i+strlen(c);
-
-    test[i++]=0x04;
-
-    qDebug()<<test[i];
-
-    QByteArray data=QByteArray(test,i); //conversion de char test en QBytteArray
-    qDebug() << data;
-    serie->write(data);*/
+//faire recepteur udp
 
 
 }
+
+void MainWindow::on_clear_clicked()
+{
+    ui->textEdit->clear();
+    on_envoyer_clicked();
+}
+
+

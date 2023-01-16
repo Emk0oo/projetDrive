@@ -2,7 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+
 #include <QtSerialPort/QSerialPort>
+#include <QUdpSocket>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -15,12 +17,18 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+
+
 private slots:
     void on_pushButtonConnexion_clicked();
 
     void on_pushButtonDeconnexion_clicked();
 
     void on_envoyer_clicked();
+
+    void on_clear_clicked();
+
+    void processPendingDatagrams();
 
 private:
     Ui::MainWindow *ui;
