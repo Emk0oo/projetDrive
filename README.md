@@ -3,7 +3,7 @@ Dev drive afficheur alpha &amp; balance
 (Qt Creator 4.11.0, Basé sur Qt 5.12.8 (GCC 9.3.0, 64 bit))
 
 
-Du 16 janvier 2023
+Du 17 janvier 2023
 
 Code fonctionnel pour envoyer une trame sur afficheur alpha 215R (& 215C)
 
