@@ -5,6 +5,9 @@
 
 #include <QtSerialPort/QSerialPort>
 #include <QUdpSocket>
+#include "clientudp.h"
+
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -33,6 +36,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QSerialPort *serie;
+    ClientUdp recepteur;
 
 
 };

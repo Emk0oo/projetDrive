@@ -11,12 +11,19 @@ public:
 
     explicit ClientUdp(QObject *parent = 0);
     virtual ~ClientUdp();
+    QUdpSocket *socket;
+    QByteArray message;
+    QByteArray datagram;
 
     public slots:
         void processPendingDatagrams();
+        QByteArray getDatagram();
 
     private :
-        QUdpSocket *socket;
+
+signals:
+     void ordreRecu(QByteArray datagram);
+
 };
 
 #endif // CLIENTUDP_H

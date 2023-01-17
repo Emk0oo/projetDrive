@@ -1,11 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "clientudp.h"
 #include <iostream>
 #include <QDebug>
+#include <unistd.h> //biblio pour la fonction sleep()
 using namespace std;
 //#define PORT "/dev/ttyUSB0"
 //#define PORT "/dev/ttyUSB1"
-#include "clientudp.h"
+
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -14,12 +16,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->pushButtonDeconnexion->setDisabled(true);
-    //ui->envoyer->setDisabled(true);
-    //ui->textEdit->setDisabled(true);
 
-    //connect(serie, SIGNAL(timeout()), this, SLOT(on_envoyer_clicked()));
-    ClientUdp recepteur;
-    recepteur.processPendingDatagrams();
+    connect(&recepteur, SIGNAL(ordreRecu(QByteArray)), this, SLOT(on_envoyer_clicked()) );
+
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -85,6 +87,9 @@ void MainWindow::on_pushButtonDeconnexion_clicked()
 
 void MainWindow::on_envoyer_clicked()
 {
+    qDebug() << "Signal déclenché";
+
+
 
         QByteArray trame;
 
@@ -100,8 +105,8 @@ void MainWindow::on_envoyer_clicked()
         trame.append(0x02); //2
         trame.append(0x41); //'A';
         trame.append(0x41); //'A';
-
-        trame.append(ui->textEdit->toPlainText()); //on récupère les char du textEdit
+        trame.append(recepteur.getDatagram());
+        //trame.append(ui->textEdit->toPlainText()); //on récupère les char du textEdit
 
         trame.append(0x04);
         QString trameqs = QString::fromStdString(trame.toStdString());
@@ -110,25 +115,7 @@ void MainWindow::on_envoyer_clicked()
 
 
 
-        QByteArray trame2;
 
-        int a;
-        for (a=0;a<5;a++){
-            trame2[a]=0x00;
-        }
-
-        trame2.append(0x01);
-        trame2.append(0x7A); //'z';
-        trame2.append(0x30); //'0';
-        trame2.append(0x30); //'0';
-        trame2.append(0x02); //2
-        trame2.append(0x41); //'A';
-        trame2.append(0x42); //'A';
-
-        trame2.append(""); //on récupère les char du textEdit
-        trame2.append(0x04);
-
-        serie->write(trame2);
 
 //faire recepteur udp
 
@@ -137,8 +124,27 @@ void MainWindow::on_envoyer_clicked()
 
 void MainWindow::on_clear_clicked()
 {
-    ui->textEdit->clear();
-    on_envoyer_clicked();
+    QByteArray trame2;
+
+    int a;
+    for (a=0;a<5;a++){
+        trame2[a]=0x00;
+    }
+
+    trame2.append(0x01);
+    trame2.append(0x7A); //'z';
+    trame2.append(0x30); //'0';
+    trame2.append(0x30); //'0';
+    trame2.append(0x02); //2
+    trame2.append(0x41); //'A';
+    trame2.append(0x41); //'A';
+
+    trame2.append(""); //on récupère les char du textEdit
+    trame2.append(0x04);
+
+    serie->write(trame2);
+    /*ui->textEdit->clear();
+    on_envoyer_clicked();*/
 }
 
 
